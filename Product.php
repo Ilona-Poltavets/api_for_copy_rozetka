@@ -33,15 +33,15 @@ class Product extends Model
         return (new Database())->runQuery($sqlQuery);
     }
     public static function find($id){
-        $sql='SELECT id,name from categories WHERE id='.$id;
+        $sql='SELECT * from products WHERE id='.$id;
         return (new Database())->getArrFromQuery($sql);
     }
     public static function getAll(){
-        $sql='SELECT * FROM categories';
+        $sql='SELECT * FROM products';
         return (new Database())->getArrFromQuery($sql);
     }
     public static function remove($id){
-        $sql='DELETE FROM `categories` WHERE id='.$id;
+        $sql='DELETE FROM `products` WHERE id='.$id;
         return (new Database())->runQuery($sql);
     }
 }
