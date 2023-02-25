@@ -1,7 +1,4 @@
 <?php
-require 'Config.php';
-require 'Product.php';
-require 'Category.php';
 require 'Controller.php';
 
 header("Content-type: application/json");

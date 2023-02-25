@@ -1,10 +1,15 @@
 <?php
+require "DBConnector.php";
+require "Config.php";
+require "Product.php";
+require "Category.php";
 
 class Controller
 {
     private $data;
     private $action;
-    private $protectedActions=[
+    private $db;
+    private $protectedActions = [
         'get_categories',
         'get_category',
         'edit_category',
@@ -17,57 +22,69 @@ class Controller
         'delete_product',
         'get_products_by_category',
     ];
-    function __construct(){
-        $this->action=$_GET['action'];
-        $this->data=json_decode(file_get_contents('php://input'),true);
+
+    function __construct()
+    {
+        $this->db = new DBConnector(Config::$host, Config::$username, Config::$pwd, Config::$dbname);
+        $this->action = $_GET['action'];
+        $this->data = json_decode(file_get_contents('php://input'), true);
     }
-    function run(){
-        $res=[];
-        if(in_array($this->action,$this->protectedActions)){
-            switch ($this->action){
+
+    function run()
+    {
+        $res = [];
+        if (in_array($this->action, $this->protectedActions)) {
+            switch ($this->action) {
                 case 'get_categories':
-                    $res=Category::getAll();
+                    $category = new Category($this->db);
+                    $res = $category->findAll();
                     break;
                 case 'get_category':
-                    $res=Category::find($_GET['id']);
+                    $category = new Category($this->db);
+                    $res = $category->findById($_GET['id']);
                     break;
                 case 'edit_category':
-                    $category=new Category();
-                    $category=$this->data;
-                    $category->save();
+                    $category = new Category($this->db);
+                    $data = $this->data;
+                    $category->update($_GET['id'], $data);
                     break;
                 case 'add_category':
-                    $category=new Category();
-                    $category=$this->data;
-                    $category->save();
+                    $category = new Category($this->db);
+                    $data = $this->data;
+                    $category->create($data);
                     break;
                 case 'delete_category':
-                    Category::remove($_GET['id']);
+                    $category = new Category($this->db);
+                    $category->delete($_GET['id']);
                     break;
                 case 'get_products':
-                    $res=Product::getAll();
+                    $product = new Product($this->db);
+                    $res = $product->findAll();
                     break;
                 case 'get_product':
-                    $res=Product::find($_GET['id']);
+                    $product = new Product($this->db);
+                    $res = $product->findById($_GET['id']);
                     break;
                 case 'get_products_by_category':
-                    $res=Product::getByCategory($_GET['id']);
+                    $product = new Product($this->db);
+                    $res = $product->findByFilter("category_id", $_GET['id']);
                     break;
                 case 'add_product':
-                    $product=new Product();
-                    $product=$this->data;
-                    $product->save();
+                    $product = new Product($this->db);
+                    $data = $this->data;
+                    $product->create($data);
                     break;
                 case 'edit_product':
-                    $product=new Product();
-                    $product=$this->data;
-                    $product->save();
+                    $product = new Product($this->db);
+                    $data = $this->data;
+                    $product->update($_GET['id'], $data);
                     break;
                 case 'delete_product':
-                    $res=Product::remove($_GET['id']);
+                    $product = new Product($this->db);
+                    $res = $product->delete($_GET['id']);
                     break;
                 default:
-                    $res=['error'=>'This route is incorrect'];
+                    $res = ['error' => 'This route is incorrect'];
                     break;
             }
             echo json_encode($res);

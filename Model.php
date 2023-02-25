@@ -38,6 +38,20 @@ abstract class Model
         return mysqli_fetch_assoc($result);
     }
 
+    public function findByFilter($field,$value){
+        $field=$this->db->escape($field);
+        $value=$this->db->escape($value);
+        $sql="SELECT * FROM {$this->table} WHERE {$field}={$value}";
+        $result=$this->db->query($sql);
+        $rows=[];
+
+        while ($row=mysqli_fetch_assoc($result)){
+            $rows[]=$row;
+        }
+
+        return $rows;
+    }
+
     public function create($data)
     {
         $keys = array_keys($data);
@@ -58,11 +72,12 @@ abstract class Model
         }
 
         $sql = "UPDATE {$this->table} SET " . implode(',', $pairs) . " WHERE id = {$this->db->escape($id)}";
-        $result = $this->db->query;
+        $result = $this->db->query($sql);
+
         return $result;
     }
 
-     public function delete($id)
+    public function delete($id)
     {
         $id = $this->db->escape($id);
         $sql = "DELETE FROM {$this->table} WHERE id = {$id}";
@@ -80,5 +95,4 @@ abstract class Model
     {
         $this->table = $table;
     }
-}
 }
