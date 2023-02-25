@@ -33,7 +33,7 @@ class Category
         return (new Database())->getArrFromQuery($sql);
     }
     public static function getAll(){
-        $sql='SELECT * FROM categories';
+        $sql='SELECT id,name FROM categories';
         return (new Database())->getArrFromQuery($sql);
     }
     public static function remove($id){

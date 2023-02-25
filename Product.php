@@ -1,6 +1,6 @@
 <?php
 
-class Product extends Model
+class Product
 {
     private $conn;
     protected $tableName = "products";
@@ -38,6 +38,13 @@ class Product extends Model
     }
     public static function getAll(){
         $sql='SELECT * FROM products';
+        return (new Database())->getArrFromQuery($sql);
+    }
+    public static function getByCategory($id){
+        if($id==0){
+            return self::getAll();
+        }
+        $sql='SELECT * FROM products WHERE category_id='.$id;
         return (new Database())->getArrFromQuery($sql);
     }
     public static function remove($id){

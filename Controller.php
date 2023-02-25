@@ -15,6 +15,7 @@ class Controller
         'add_product',
         'edit_product',
         'delete_product',
+        'get_products_by_category',
     ];
     function __construct(){
         $this->action=$_GET['action'];
@@ -25,10 +26,10 @@ class Controller
         if(in_array($this->action,$this->protectedActions)){
             switch ($this->action){
                 case 'get_categories':
-                    Category::getAll();
+                    $res=Category::getAll();
                     break;
                 case 'get_category':
-                    Category::find($_GET['id']);
+                    $res=Category::find($_GET['id']);
                     break;
                 case 'edit_category':
                     $category=new Category();
@@ -44,10 +45,13 @@ class Controller
                     Category::remove($_GET['id']);
                     break;
                 case 'get_products':
-                    Product::getAll();
+                    $res=Product::getAll();
                     break;
                 case 'get_product':
-                    Product::find($_GET['id']);
+                    $res=Product::find($_GET['id']);
+                    break;
+                case 'get_products_by_category':
+                    $res=Product::getByCategory($_GET['id']);
                     break;
                 case 'add_product':
                     $product=new Product();
@@ -60,7 +64,7 @@ class Controller
                     $product->save();
                     break;
                 case 'delete_product':
-                    Product::remove($_GET['id']);
+                    $res=Product::remove($_GET['id']);
                     break;
                 default:
                     $res=['error'=>'This route is incorrect'];

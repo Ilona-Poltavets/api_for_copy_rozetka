@@ -2,69 +2,83 @@
 
 abstract class Model
 {
-//    private static PDO $db;
-    protected $tableName;
-    protected static $db;
+    protected $db;
 
-    public function __construct()
+    protected $table;
+
+    public function __construct(DBConnector $db)
     {
-        try {
-            self::$db = new \PDO('mysql:host=' . \Config::$host . ';dbname=' . \Config::$dbname, \Config::$username, \Config::$pwd);
-        } catch (\Exception $e) {
-            throw new \Exception('Error creating a database connection');
+        $this->db = $db;
+
+        if (!$this->table) {
+            $this->table = strtolower(get_class($this));
         }
     }
 
-    public function save()
+    public function findAll()
     {
-        $class = new \ReflectionClass($this);
-        $tableName = "";
+        $sql = "SELECT * FROM {$this->table}";
+        $result = $this->db->query($sql);
 
-        if ($this->tableName != '') {
-            $tableName = $this->tableName;
-        } else {
-            $tableName = strtolower($class->getShortName());
+        $rows = [];
+
+        while ($row = mysqli_fetch_assoc($result)) {
+            $rows[] = $row;
         }
 
-        $propsToImplode = [];
+        return $rows;
+    }
 
-        foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
-            $propertyName = $property->getName();
-            $propsToImplode[] = '`' . $propertyName . '` = "' . $this->{$propertyName} . '"';
+    public function findById($id)
+    {
+        $id = $this->db->escape($id);
+        $sql = "SELECT * FROM {$this->table} WHERE id = {$id}";
+        $result = $this->db->query($sql);
+
+        return mysqli_fetch_assoc($result);
+    }
+
+    public function create($data)
+    {
+        $keys = array_keys($data);
+        $values = array_map([$this->db, 'escape'], array_values($data));
+
+        $sql = "INSERT INTO {$this->table} (" . implode(',', $keys) . ") VALUES ('" . implode("','", $values) . "')";
+        $result = $this->db->query($sql);
+
+        return $this->db->getLastInsertedId();
+    }
+
+    public function update($id, $data)
+    {
+        $pairs = [];
+
+        foreach ($data as $key => $value) {
+            $pairs[] = "{$key}='{$this->db->escape($value)}'";
         }
 
-        $setClause = implode(',', $propsToImplode);
-        $sqlQuery = '';
+        $sql = "UPDATE {$this->table} SET " . implode(',', $pairs) . " WHERE id = {$this->db->escape($id)}";
+        $result = $this->db->query;
+        return $result;
+    }
 
-        if ($this->id > 0) {
-            $sqlQuery = 'UPDATE `' . $tableName . '` SET ' . $setClause . ' WHERE id = ' . $this->id;
-        } else {
-            $sqlQuery = 'INSERT INTO `' . $tableName . '` SET ' . $setClause;
-        }
-
-        var_dump($sqlQuery);
-        $result = self::$db->exec($sqlQuery);
-
-        if (self::$db->errorCode()) {
-            throw new \Exception(self::$db->errorInfo()[2]);
-        }
+     public function delete($id)
+    {
+        $id = $this->db->escape($id);
+        $sql = "DELETE FROM {$this->table} WHERE id = {$id}";
+        $result = $this->db->query($sql);
 
         return $result;
     }
 
-    public static function morph(array $object)
+    public function getTable()
     {
-        $class = new \ReflectionClass(get_called_class());
-        $entity = $class->newInstance();
-
-        foreach ($class->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
-            if (isset($object[$prop->getName()])) {
-                $prop->setValue($entity, $object[$prop->getName()]);
-            }
-        }
-
-        $entity->initilize();
-
-        return $entity;
+        return $this->table;
     }
+
+    public function setTable($table)
+    {
+        $this->table = $table;
+    }
+}
 }

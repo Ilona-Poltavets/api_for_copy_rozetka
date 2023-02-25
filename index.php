@@ -1,11 +1,14 @@
 <?php
 require 'Config.php';
-require 'Model.php';
 require 'Product.php';
 require 'Category.php';
+require 'Controller.php';
 
-//$category=new Category();
-//$category->id=1;
-//$category->name="laptop";
-//$category->save();
-echo json_encode(Category::getAll());
+header("Content-type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Origin, Content-Type, X-AUTH-Token, Authorization");
+
+$input = json_decode(file_get_contents('php://input'), true);
+
+(new Controller())->run();
