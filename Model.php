@@ -38,15 +38,16 @@ abstract class Model
         return mysqli_fetch_assoc($result);
     }
 
-    public function findByFilter($field,$value){
-        $field=$this->db->escape($field);
-        $value=$this->db->escape($value);
-        $sql="SELECT * FROM {$this->table} WHERE {$field}={$value}";
-        $result=$this->db->query($sql);
-        $rows=[];
+    public function findByFilter($field, $value)
+    {
+        $field = $this->db->escape($field);
+        $value = $this->db->escape($value);
+        $sql = "SELECT * FROM {$this->table} WHERE {$field}={$value}";
+        $result = $this->db->query($sql);
+        $rows = [];
 
-        while ($row=mysqli_fetch_assoc($result)){
-            $rows[]=$row;
+        while ($row = mysqli_fetch_assoc($result)) {
+            $rows[] = $row;
         }
 
         return $rows;
@@ -54,8 +55,22 @@ abstract class Model
 
     public function create($data)
     {
+        if (empty($data)) {
+            throw new Exception('No data provided');
+        }
+
         $keys = array_keys($data);
         $values = array_map([$this->db, 'escape'], array_values($data));
+
+//        if ($_POST['image']) {
+//            $image = $_FILES['image'];
+//            print_r("67--------------".$image);
+//            $image_name = $image['name'];
+//            $image_path = './uploads/' . $image_name;
+//            move_uploaded_file($image['tmp_name'], $image_path);
+//
+//            $data['image'] = $image_path;
+//        }
 
         $sql = "INSERT INTO {$this->table} (" . implode(',', $keys) . ") VALUES ('" . implode("','", $values) . "')";
         $result = $this->db->query($sql);

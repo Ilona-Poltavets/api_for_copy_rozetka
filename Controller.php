@@ -72,7 +72,10 @@ class Controller
                 case 'add_product':
                     $product = new Product($this->db);
                     $data = $this->data;
-                    $product->create($data);
+//                    foreach ($_POST as $key => $value) {
+//                        echo "Field ".htmlspecialchars($key)." is ".htmlspecialchars($value)."<br>";
+//                    }
+                    $product->create($_POST);
                     break;
                 case 'edit_product':
                     $product = new Product($this->db);
